@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infinite Scroll</title>
+</head>
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        background-color: #fafafa;
+        font-family: sans-serif;
+        padding-bottom: 100px;
+    }
+
+    .container {
+        margin: 0 auto;
+        max-width: 600px;
+    }
+
+    .user-info {
+        background-color: #fff;
+        box-shadow: 0px 1px 2px rgba(50, 50, 50, .1),
+            0px 2px 4px rgba(60, 60, 60, 0.1);
+        border-radius: 4px;
+        padding: 40px;
+        margin: 20px 0;
+    }
+
+    .title {
+        margin: 0;
+        text-align: center;
+    }
+
+    .text {
+        color: #555;
+        font-size: 16px;
+        margin: 20px 0;
+    }
+
+    .name {
+        margin-left: 10px;
+    }
+
+    .user-image {
+        display: flex;
+        align-items: center;
+    }
+
+    .user-image img {
+        border-radius: 10%;
+    }
+
+    .user-image span {
+        font-size: 20px;
+        margin-left: 10px;
+    }
+</style>
+
+<body>
+    <div class="container" id="container">
+        <h1 style="text-align: center;">Random User Generator</h1>
+        <!-- <div class="user-info">
+            <h2 class="title">Username</h2>
+            <p class="text">Country</p>
+            <p class="text">Country</p>
+            <p class="text">Country</p>
+            <p class="text">Country</p>
+            <div class="user-image">
+                <img src="https://randomuser.me/api/portraits/women/26.jpg" alt="">
+                <span>Message</span>
+            </div>
+        </div> -->
+    </div>
+    <div class="loading">
+        <h5 style="text-align: center;">Loading...</h5>
+    </div>
+</body>
+<script>
+    const container = document.getElementById('container');
+    getPost();
+    getPost();
+    getPost();
+
+    window.addEventListener('scroll', () => {
+        const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
+        if (clientHeight + scrollTop >= scrollHeight - 5) {
+            setTimeout(getPost, 1000);
+        }
+    })
+
+    async function getPost() {
+        const postResponse = await fetch('https://randomuser.me/api');
+        const userData = await postResponse.json();
+        const data = { user: userData.results[0] };
+        console.log(data)
+        addDataToDom(data);
+    }
+    function getRandomNum() {
+        return Math.floor(Math.random() * 100) + 1;
+    }
+    function addDataToDom(data) {
+        const postElement = document.createElement('div');
+        postElement.classList.add('user-info');
+        postElement.innerHTML = `
+            <h2 class="title">Username : ${data.user.login.username}</h2>
+            <p class="text">Email : ${data.user.email}</p>
+            <p class="text">Gender : ${data.user.gender}</p>
+            <p class="text">Phone : ${data.user.phone}</p>
+            <p class="text">Country : ${data.user.location.country}</p>
+            <div class="user-image">
+                    <img src="${data.user.picture.large}" alt="${data.user.name.first}"/>
+                    <p class="name">Name : </p>
+                    <span>${data.user.name.title} ${data.user.name.first} ${data.user.name.last}</span>
+            </div>
+        `;
+        container.appendChild(postElement);
+    }
+</script>
+
+</html>
